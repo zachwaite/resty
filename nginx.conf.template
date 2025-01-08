@@ -15,7 +15,8 @@ http {
     ${NGX_ACCESS_LOGGING}
     ${NGX_ERROR_LOGGING}
 
-    include hello/hello.conf.template;
-    include goodbye/goodbye.conf.template;
+    include hello/hello.conf;
+    include goodbye/goodbye.conf;
+    include example-form/example-form.conf;
   }
 }
