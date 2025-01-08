@@ -51,7 +51,7 @@ sync:
       --exclude=.gitmodules\
       --exclude=logs/\
       --exclude=*_temp/\
-      --exclude=nginx.conf\
+      --exclude=*.conf\
       --chown root:root\
       --out-format='<<CHANGED>>%i %n%L'\
       "$(pwd | xargs dirname )/"\
