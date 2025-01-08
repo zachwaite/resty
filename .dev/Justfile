@@ -1,0 +1,59 @@
+#! /usr/bin/env just
+
+set dotenv-load
+
+CONTAINER_IMAGE := "noble"
+CONTAINER_NAME := "dev-resty"
+CONTAINER_IP := `lxc query /1.0/containers/dev-resty/state | jq .network.eth0.addresses[0].address`
+PUBKEY := `cat ~/.ssh/id_ed25519.pub`
+
+
+# ======================== Dev Commands ========================================
+container:
+  #! /usr/bin/env bash
+
+  lxc launch ubuntu:{{ CONTAINER_IMAGE }} {{ CONTAINER_NAME }}
+
+copy-id:
+  #! /usr/bin/env bash
+
+  lxc file push ~/.ssh/id_ed25519.pub {{ CONTAINER_NAME }}/root/.ssh/authorized_keys --uid 0 --gid 0
+
+connect:
+  #! /usr/bin/env bash
+
+  ssh root@{{ CONTAINER_IP }}
+
+destroy: 
+  #! /usr/bin/env bash
+
+  lxc stop {{ CONTAINER_NAME }} 
+  lxc rm {{ CONTAINER_NAME }}
+
+watch:
+  #! /usr/bin/env bash
+
+  while true; do\
+    inotifywait -qr -e modify -e create -e delete -e move "$(pwd | xargs dirname)";\
+    just sync;\
+  done
+
+sync:
+  #! /usr/bin/env bash
+
+  /usr/bin/rsync --delay-updates -F --compress --delete-after --archive --rsh='/usr/bin/ssh -S none -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'\
+      --rsync-path='sudo -u root rsync'\
+      --exclude=.dev/Justfile\
+      --exclude=.git\
+      --exclude=nocommit\
+      --exclude=*.nocommit\
+      --exclude=.gitignore\
+      --exclude=.gitmodules\
+      --exclude=logs/\
+      --exclude=*_temp/\
+      --exclude=nginx.conf\
+      --chown root:root\
+      --out-format='<<CHANGED>>%i %n%L'\
+      "$(pwd | xargs dirname )/"\
+      "root@[{{ CONTAINER_IP }}]:/opt/"
+

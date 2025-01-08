@@ -1,0 +1,21 @@
+daemon off;
+pid logs/nginx.pid;
+worker_processes ${NGX_WORKERS};
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  include mime.types;
+
+  server {
+    listen 80;
+    lua_code_cache ${LUA_CODE_CACHE};
+    ${NGX_ACCESS_LOGGING}
+    ${NGX_ERROR_LOGGING}
+
+    include hello/hello.conf.template;
+    include goodbye/goodbye.conf.template;
+  }
+}

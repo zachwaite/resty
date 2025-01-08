@@ -1,0 +1,58 @@
+#! /usr/bin/env bash
+
+set -o errexit
+set -o nounset
+
+USAGE=$(cat <<-EOM
+resty v1.0
+
+Run openresty for the servicehost
+
+Running in 'dev' mode sets workers to 1, lua_code_cache off
+
+Args:
+  mode (string): (dev | prod)
+
+Exit codes:
+  0 = ok
+  10 = missing mode
+  20 = invalid mode
+  99 = not implemented
+
+Example:
+  $ ./resty dev
+EOM
+)
+# ================================== Main =============================================
+#
+
+# guard for missing mode arg
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    printf "\n>>>No mode supplied\n"
+    exit 10
+fi
+
+# guard
+if [[ "$1" == "-h" ]]; then
+  echo "$USAGE"
+  exit 1
+fi
+
+MODE="$1"
+if [[ "$MODE" == "dev" ]]; then
+  export NGX_WORKERS=1
+  export LUA_CODE_CACHE="off"
+  export NGX_ACCESS_LOGGING="access_log /dev/stdout;"
+  export NGX_ERROR_LOGGING="error_log /dev/stdout;"
+  envsubst < "$PWD/nginx.conf.template" > "$PWD/nginx.conf"
+  ip addr
+  openresty -c "$PWD/nginx.conf" -p $PWD
+elif [[ "$MODE" == "prod" ]]; then
+  echo "Not Implemented"
+  exit 99
+else
+    echo "$USAGE"
+    printf "\n>>>Invalid mode\n"
+    exit 20
+fi
