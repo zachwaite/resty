@@ -6,7 +6,7 @@ apt-get upgrade -y
 echo "Configure shell"
 echo "set -o vi" >> ~/.inputrc
 echo "set -o vi" >> ~/.bashrc
-echo 'alias workon-svchost="cd /opt"' >> ~/.bashrc
+echo 'alias workon-resty="cd /opt"' >> ~/.bashrc
 
 echo "Installing openresty"
 apt-get -y install --no-install-recommends wget gnupg ca-certificates lsb-release
