@@ -45,8 +45,12 @@ if [[ "$MODE" == "dev" ]]; then
   export LUA_CODE_CACHE="off"
   export NGX_ACCESS_LOGGING="access_log /dev/stdout;"
   export NGX_ERROR_LOGGING="error_log /dev/stdout;"
+  envsubst < "$PWD/hello/hello.conf.template" > "$PWD/hello/hello.conf"
+  envsubst < "$PWD/goodbye/goodbye.conf.template" > "$PWD/goodbye/goodbye.conf"
+  envsubst < "$PWD/example-form/example-form.conf.template" > "$PWD/example-form/example-form.conf"
   envsubst < "$PWD/nginx.conf.template" > "$PWD/nginx.conf"
   ip addr
+  echo "Make sure to start any backend services proxied by resty!"
   openresty -c "$PWD/nginx.conf" -p $PWD
 elif [[ "$MODE" == "prod" ]]; then
   echo "Not Implemented"
